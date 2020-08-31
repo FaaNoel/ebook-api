@@ -28,3 +28,5 @@ Route::post('/books/create', 'BookController@store');
 Route::post('/books/update/{id}', 'BookController@update');
 
 Route::delete('/books/delete/{id}', 'BookController@destroy');
+
+Route::resource("authors", "AuthorController");
