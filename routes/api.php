@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,3 +31,15 @@ Route::post('/books/update/{id}', 'BookController@update');
 Route::delete('/books/delete/{id}', 'BookController@destroy');
 
 Route::resource("authors", "AuthorController");
+
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'book'
+
+], function ($router) {
+    Route::post('login', 'AuthController@login');
+    Route::post('register', 'AuthController@register');
+    Route::post('logout', 'AuthController@logout');
+    Route::post('refresh', 'AuthController@refresh');
+    Route::get('user-profile', 'AuthController@userProfile');
+});

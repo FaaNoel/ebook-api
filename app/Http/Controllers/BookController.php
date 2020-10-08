@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use DB;
+use App\Book;
+use Validator;
+
+
 class BookController extends Controller
 {
     /**
@@ -13,8 +16,7 @@ class BookController extends Controller
      */
     public function index()
     {
-        $books = DB::table('books') -> get();
-        return response($books);
+        return Book::get();
     }
 
     /**
@@ -24,8 +26,7 @@ class BookController extends Controller
      */
     public function create()
     {
-  
-      
+        //
     }
 
     /**
@@ -36,36 +37,19 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        try{
-          
-            $title = $request->input('title');
-            $description = $request->input('description');
-            $author = $request->input('author');
-            $publisher = $request->input('publisher');
-            $dates = $request->input('date_of_issue');
- 
- 
-            $data = new \App\Book();
-            $data->title = $title;
-            $data->description = $description;
-            $data->author = $author;
-            $data->publisher = $publisher;
-            $data->date_of_issue = $dates;
-     
-            if($data->save()){
-                return response()->json([
-                    'status' => true,
-                    'code' => 200,
-                    'message' => 'Berhasil Menambah Buku',
-                ], 200);
-            }
-        }catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'status' => false,
-                'code' => 200,
-                'message' => $e->getMessage()
-            ], 200);
+        $isLoggedIn = auth()->user();
+        if ($isLoggedIn) {
+            $data = Book::create([
+                "title" => $request->input('title'),
+                "description" => $request->input('description'),
+                "author" => $request->input('author'),
+                "publisher" => $request->input('publisher'),
+                "date_of_issue" => $request->input('date_of_issue')
+            ]);
+            
+            return response(['message' => 'Create data success', 'data' => $data], 201);
+        } else {
+            return response(['message' => 'Not authenticated', 'data' => null], 401);
         }
     }
 
@@ -78,6 +62,7 @@ class BookController extends Controller
     public function show($id)
     {
         //
+        return Book::find($id);
     }
 
     /**
@@ -100,39 +85,20 @@ class BookController extends Controller
      */
     public function update(Request $request, $id)
     {
-        
-    
-            try{
-          
-                $title = $request->input('title');
-                $description = $request->input('description');
-                $author = $request->input('author');
-                $publisher = $request->input('publisher');
-                $dates = $request->input('date_of_issue');
-     
-     
-                $data = \App\Book::where('id',$id)->first();
-                $data->title = $title;
-                $data->description = $description;
-                $data->author = $author;
-                $data->publisher = $publisher;
-                $data->date_of_issue = $dates;
-         
-                if($data->save()){
-                    return response()->json([
-                        'status' => true,
-                        'code' => 200,
-                        'message' => 'Berhasil Update Buku',
-                    ], 200);
-                }
-            }catch (\Exception $e) {
-                DB::rollBack();
-                return response()->json([
-                    'status' => false,
-                    'code' => 200,
-                    'message' => $e->getMessage()
-                ], 200);
-            }
+        $isLoggedIn = auth()->user();
+        if ($isLoggedIn) {
+            $data = Book::find($id)->update([
+                "title" => $request->input('title'),
+                "description" => $request->input('description'),
+                "author" => $request->input('author'),
+                "publisher" => $request->input('publisher'),
+                "date_of_issue" => $request->input('date_of_issue')
+            ]);
+            return response(['message' => 'Update data success', 'data' => $data], 201);
+
+        } else {
+            return response(['message' => 'Not authenticated', 'data' => null], 401);
+        }
     }
 
     /**
@@ -143,25 +109,13 @@ class BookController extends Controller
      */
     public function destroy($id)
     {
-        //
-    
-        try{
-            $data = \App\Book::where('id',$id)->first();
-            if($data->delete()){
-                return response()->json([
-                    'status' => true,
-                    'code' => 200,
-                    'message' => 'Berhasil Delete Buku',
-                ], 200);
-            }
-        }catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'status' => false,
-                'code' => 200,
-                'message' => $e->getMessage()
-            ], 200);
+        $isLoggedIn = auth()->user();
+        if ($isLoggedIn) {
+            $data = Book::destroy($id);
+            return response(['message' => 'Delete data success', 'data' => $data], 201);
+            
+        } else {
+            return response(['message' => 'Not authenticated', 'data' => null], 401);
         }
-
     }
 }
